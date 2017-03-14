@@ -1,0 +1,30 @@
+AMAZON.NextIntent next
+AMAZON.NextIntent next exercise
+AMAZON.NextIntent done
+AMAZON.NextIntent what's next
+
+AMAZON.PreviousIntent previous
+AMAZON.PreviousIntent previous exercise
+AMAZON.PreviousIntent rewind
+
+AMAZON.PauseIntent pause
+AMAZON.PauseIntent I need a break
+AMAZON.PauseIntent I need to rest
+AMAZON.PauseIntent Just a second
+AMAZON.PauseIntent water break
+AMAZON.PauseIntent I need a water break
+AMAZON.PauseIntent take five
+
+AMAZON.StartOverIntent do over
+AMAZON.StartOverIntent let's try that again
+AMAZON.StartOverIntent again
+
+
+DontKnowIntent i don't know
+DontKnowIntent don't know
+DontKnowIntent skip
+DontKnowIntent i don't know that
+DontKnowIntent who knows
+DontKnowIntent i don't know this exercise
+DontKnowIntent i don't know that one
+DontKnowIntent dunno

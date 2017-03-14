@@ -1,0 +1,16 @@
+{"intents": [
+    {"intent": "SkipWarmUpIntent"},
+    {"intent": "SkipCoolDownIntent"},
+    {"intent": "AMAZON.NextIntent"},
+    {"intent": "AMAZON.PreviousIntent"},
+    {"intent": "AMAZON.PauseIntent"},
+    {"intent": "AMAZON.ResumeIntent"},
+    {"intent": "AMAZON.StartOverIntent"},
+    {"intent": "AMAZON.RepeatIntent"},
+    {"intent": "AMAZON.HelpIntent"},
+    {"intent": "AMAZON.YesIntent"},
+    {"intent": "AMAZON.NoIntent"},
+    {"intent": "AMAZON.StopIntent"},
+    {"intent": "AMAZON.CancelIntent"}
+  ]
+}
