@@ -77,6 +77,8 @@ var newSessionHandlers = {
     }
 };
 
+
+
 var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
     "StartWorkout": function (newWorkout) {
         //the complete intro audio when a new workout is started
@@ -95,7 +97,7 @@ var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
         var coreExerciseText;
         
         (function coreExercisesSpeechOutput(n) {
-            coreExerciseText = coreExercises[n] + ". " + this.t("GO_MESSAGE"); /* NOTE: wanted to add this message but only at the end of each loop timeout.  + this.t("EXERCISE_COMPLETE_MESSAGE") */
+            coreExerciseText = coreExercises[n] + ". Go!"; 
             if (n < coreExercises.length) setTimeout(function() {
                 coreExercisesSpeechOutput(++n);
             }, 3000);
@@ -107,15 +109,15 @@ var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
             repromptText += (i+1).toString() + ". " + roundAnswers[i] + ". ";
         }*/
 
-        speechOutput += repromptText;
+        speechOutput += " " + coreExerciseText;
 
         Object.assign(this.attributes, {
             "coreExerciseText": coreExerciseText,
             "speechOutput": repromptText,
             "repromptText": repromptText,
-            "currentExerciseIndex": currentExerciseIndex,
+            //"currentExerciseIndex": currentExerciseIndex,
             //"correctAnswerIndex": correctAnswerIndex + 1,
-            "exercises": workoutExercises
+            "exercises": coreExercises
             //"score": 0,
             //"correctAnswerText": translatedQuestions[gameQuestions[currentQuestionIndex]][Object.keys(translatedQuestions[gameQuestions[currentQuestionIndex]])[0]][0]
         });
