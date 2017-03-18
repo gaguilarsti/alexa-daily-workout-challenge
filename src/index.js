@@ -1,5 +1,9 @@
 "use strict";
 var APP_ID = "amzn1.ask.skill.3b461673-ee55-417c-a60c-57dbb405d485";
+
+//Google Analytics
+var ua = require('universal-analytics');
+
 var SESSION_LENGTH = 5;  // The number of questions per trivia game.
 var SKILL_STATES = {
     WORKOUT: "_WORKOUT", // Reading exercises.
@@ -29,18 +33,21 @@ var languageString = {
             "START_UNHANDLED": "Say start to start a new workout.",
             "WORKOUT_UNHANDLED": "Sorry, I didn'nt quite get that.",
             "NEW_WORKOUT_MESSAGE": "Welcome to %s. ",
-            "WELCOME_MESSAGE": "I will go through %s core exercises that you will either do for thirty seconds or do a certain number of repititions. For example, I will say, do squats for thirty seconds or do fifteen pushups. Your job is to keep up. Let's begin.",
+            "WELCOME_MESSAGE": "I will go through %s core exercises that you will either do for thirty seconds or do a certain number of repititions within thrity seconds. For example, I will say, do squats for thirty seconds or do fifteen pushups. Your job is to keep up. Let's begin.",
             "TELL_EXERCISE_MESSAGE": "Exercise %s. %s ",
             "SKIP_WARMUP_MESSAGE": "Got it, let's get going.",
             "SKIP_COOLDOWN_MESSAGE": "Great work today.  Stretching is important, try to not skip it next time.",
-            "WORKOUT_OVER_MESSAGE": "Great work today.  See you tomorrow.",
+            "WORKOUT_COMPLETE_MESSAGE": "Your workout is complete! Great work today. See you tomorrow.",
             "GO_MESSAGE": "Go!",
-            "FIVE_REP_COUNT_MESSAGE": "One. Two. Three. Four. Five",
-            "TEN_REP_COUNT_MESSAGE": "One. Two. Three. Four. Five. Six. Seven. Eight. Nine. Ten.",
+            "MID_POINT_MESSAGE": "Half way there",
+            "FIFTEEN_SECOND_TIMER_SSML": "<break time=\"10s\" /><break time=\"5s\" />",
+            "TEN_SECOND_TIMER_SSML": "<break time=\"10s\" />",
+            "FIVE_SEC_COUNTDOWN_SSML": "<p>Five</p><p>Four</p><p>Three</p><p>Two</p><p>One</p>",
             "EXERCISE_COMPLETE_MESSAGE": "Good work!",
             "WARM_UP_START_MESSAGE": "Let's start with a quick warm up to loosen up your body. At any time you can skip the warmup by saying. Skip Warmup",
             "CORE_EXERCISE_START_MESSAGE": "Now that we're loosened up, let's start the main exercises. At any point, if you need a break, just say, I need a break, or, pause. If you finish an exercise early, you can also say, done, or, next exercise.",
-            "COOL_DOWN_START_MESSAGE": "Great job today.  Let's do some stretching to avoid injury and be strong"
+            "COOL_DOWN_START_MESSAGE": "Great job today.  Let's do some stretching to avoid injury and be strong",
+            "EXERCISE_COMPLETE_MESSAGE": "Good work. Next exercise"
             
         }
     }
@@ -87,39 +94,30 @@ var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
         var translatedExercises = this.t("EXERCISES");
         // this is an array of the core exercises selected for the workout
         var coreExercises = populateWorkoutExercises(translatedExercises);
-        // Generate a random index for the correct answer, from 0 to 3
-        //var correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));
-        // Select and shuffle the answers for each question
-        //var roundAnswers = populateRoundAnswers(gameQuestions, 0, correctAnswerIndex, translatedQuestions);
         
         var cardExercises = coreExercises.join(". ");
         
-        var coreExerciseText;
+        var coreExerciseText = [];
         
-        (function coreExercisesSpeechOutput(n) {
-            coreExerciseText = coreExercises[n] + ". Go!"; 
-            if (n < coreExercises.length) setTimeout(function() {
-                coreExercisesSpeechOutput(++n);
-            }, 3000);
-        })(0);
+        for (var k = 0; k < coreExercises.length; k++) {
+            if (k != coreExercises.length - 1) {
+                coreExerciseText.push(coreExercises[k] + ". " + this.t("GO_MESSAGE") + this.t("FIFTEEN_SECOND_TIMER_SSML") + this.t("MID_POINT_MESSAGE") + this.t("TEN_SECOND_TIMER_SSML") + this.t("FIVE_SEC_COUNTDOWN_SSML") + this.t("EXERCISE_COMPLETE_MESSAGE"));
+            } else {
+                coreExerciseText.push(coreExercises[k] + ". " + this.t("GO_MESSAGE") + this.t("FIFTEEN_SECOND_TIMER_SSML") + this.t("MID_POINT_MESSAGE") + this.t("TEN_SECOND_TIMER_SSML") + this.t("FIVE_SEC_COUNTDOWN_SSML"));
+            }
+        }
+        
+        var coreExerciseSpeechOutput = coreExerciseText.join(". ") + this.t("WORKOUT_COMPLETE_MESSAGE");
         
         var repromptText = this.t("TELL_EXERCISE_MESSAGE", "1", coreExercises[0]);
 
-        /*for (var i = 0; i < ANSWER_COUNT; i++) {
-            repromptText += (i+1).toString() + ". " + roundAnswers[i] + ". ";
-        }*/
-
-        speechOutput += " " + coreExerciseText;
+        speechOutput += " " + coreExerciseSpeechOutput;
 
         Object.assign(this.attributes, {
             "coreExerciseText": coreExerciseText,
-            "speechOutput": repromptText,
+            "speechOutput": speechOutput,
             "repromptText": repromptText,
-            //"currentExerciseIndex": currentExerciseIndex,
-            //"correctAnswerIndex": correctAnswerIndex + 1,
             "exercises": coreExercises
-            //"score": 0,
-            //"correctAnswerText": translatedQuestions[gameQuestions[currentQuestionIndex]][Object.keys(translatedQuestions[gameQuestions[currentQuestionIndex]])[0]][0]
         });
 
         // Set the current state to workout mode. The skill will now use handlers defined in workoutStateHandlers
@@ -202,30 +200,7 @@ var helpStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.HELP, {
     }
 });
 
-/* 
-Not needed for workout - not receiving guesses from user
-
-function handleUserGuess(userGaveUp) {
-    var answerSlotValid = isAnswerSlotValid(this.event.request.intent);
-    var speechOutput = "";
-    var speechOutputAnalysis = "";
-    var gameQuestions = this.attributes.questions;
-    var correctAnswerIndex = parseInt(this.attributes.correctAnswerIndex);
-    var currentScore = parseInt(this.attributes.score);
-    var currentQuestionIndex = parseInt(this.attributes.currentQuestionIndex);
-    var correctAnswerText = this.attributes.correctAnswerText;
-    var translatedQuestions = this.t("QUESTIONS");
-
-    if (answerSlotValid && parseInt(this.event.request.intent.slots.Answer.value) == this.attributes["correctAnswerIndex"]) {
-        currentScore++;
-        speechOutputAnalysis = this.t("ANSWER_CORRECT_MESSAGE");
-    } else {
-        if (!userGaveUp) {
-            speechOutputAnalysis = this.t("ANSWER_WRONG_MESSAGE");
-        }
-
-        speechOutputAnalysis += this.t("CORRECT_ANSWER_MESSAGE", correctAnswerIndex, correctAnswerText);
-    }
+/*
 
     // Check if we can exit the game session after GAME_LENGTH questions (zero-indexed)
     if (this.attributes["currentQuestionIndex"] == GAME_LENGTH - 1) {
@@ -288,47 +263,3 @@ function populateWorkoutExercises(translatedExercises) {
 
     return workoutExercises;
 }
-
-/**
- * Get the answers for a given question, and place the correct answer at the spot marked by the
- * correctAnswerTargetLocation variable. Note that you can have as many answers as you want but
- * only ANSWER_COUNT will be selected.
- * */
-
-/*
-function populateRoundAnswers(gameQuestionIndexes, correctAnswerIndex, correctAnswerTargetLocation, translatedQuestions) {
-    var answers = [];
-    var answersCopy = translatedQuestions[gameQuestionIndexes[correctAnswerIndex]][Object.keys(translatedQuestions[gameQuestionIndexes[correctAnswerIndex]])[0]].slice();
-    var index = answersCopy.length;
-
-    if (index < ANSWER_COUNT) {
-        throw new Error("Not enough answers for question.");
-    }
-
-    // Shuffle the answers, excluding the first element which is the correct answer.
-    for (var j = 1; j < answersCopy.length; j++){
-        var rand = Math.floor(Math.random() * (index - 1)) + 1;
-        index -= 1;
-
-        var temp = answersCopy[index];
-        answersCopy[index] = answersCopy[rand];
-        answersCopy[rand] = temp;
-    }
-
-    // Swap the correct answer into the target location
-    for (var i = 0; i < ANSWER_COUNT; i++) {
-        answers[i] = answersCopy[i];
-    }
-    temp = answers[0];
-    answers[0] = answers[correctAnswerTargetLocation];
-    answers[correctAnswerTargetLocation] = temp;
-    return answers;
-}
-
-function isAnswerSlotValid(intent) {
-    var answerSlotFilled = intent && intent.slots && intent.slots.Answer && intent.slots.Answer.value;
-    var answerSlotIsInt = answerSlotFilled && !isNaN(parseInt(intent.slots.Answer.value));
-    return answerSlotIsInt && parseInt(intent.slots.Answer.value) < (ANSWER_COUNT + 1) && parseInt(intent.slots.Answer.value) > 0;
-}
-
-*/
