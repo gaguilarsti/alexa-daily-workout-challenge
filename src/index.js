@@ -88,6 +88,11 @@ var newSessionHandlers = {
 
 var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
     "StartWorkout": function (newWorkout) {
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("success", speechOutput).send();
+        
         //the complete intro audio when a new workout is started
         var speechOutput = newWorkout ? this.t("NEW_WORKOUT_MESSAGE", this.t("SKILL_NAME")) + this.t("WELCOME_MESSAGE", SESSION_LENGTH.toString()) : "";
         
@@ -130,25 +135,49 @@ var workoutStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.WORKOUT, {
     "AMAZON.StartOverIntent": function () {
         this.handler.state = SKILL_STATES.START;
         this.emitWithState("StartWorkout", false);
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("StartOverIntent", "success").send();
     },
     "AMAZON.HelpIntent": function () {
         this.handler.state = SKILL_STATES.HELP;
         this.emitWithState("helpTheUser", false);
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("HelpIntent", "success").send();
     },
     "AMAZON.StopIntent": function () {
         this.handler.state = SKILL_STATES.HELP;
         var speechOutput = this.t("STOP_MESSAGE");
         this.emit(":ask", speechOutput, speechOutput);
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("StopIntent", "success").send();
     },
     "AMAZON.CancelIntent": function () {
         this.emit(":tell", this.t("CANCEL_MESSAGE"));
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("CancelIntent", "success").send();
     },
     "Unhandled": function () {
         var speechOutput = this.t("WORKOUT_UNHANDLED");
         this.emit(":tell", speechOutput, speechOutput);
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("UnHandled", "success").send();
     },
     "SessionEndedRequest": function () {
         console.log("Session ended in workout state: " + this.event.request.reason);
+        //declaring the intentTrackingID's Google Tracking ID
+        var intentTrackingID = ua('UA-93829613-1');
+        //report a success
+        intentTrackingID.event("SessionEndRequest", "success").send();
     }
 });
 
@@ -199,43 +228,6 @@ var helpStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.HELP, {
         console.log("Session ended in help state: " + this.event.request.reason);
     }
 });
-
-/*
-
-    // Check if we can exit the game session after GAME_LENGTH questions (zero-indexed)
-    if (this.attributes["currentQuestionIndex"] == GAME_LENGTH - 1) {
-        speechOutput = userGaveUp ? "" : this.t("ANSWER_IS_MESSAGE");
-        speechOutput += speechOutputAnalysis + this.t("GAME_OVER_MESSAGE", currentScore.toString(), GAME_LENGTH.toString());
-
-        this.emit(":tell", speechOutput)
-    } else {
-        currentQuestionIndex += 1;
-        correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));
-        var spokenQuestion = Object.keys(translatedQuestions[gameQuestions[currentQuestionIndex]])[0];
-        var roundAnswers = populateRoundAnswers.call(this, gameQuestions, currentQuestionIndex, correctAnswerIndex, translatedQuestions);
-        var questionIndexForSpeech = currentQuestionIndex + 1;
-        var repromptText = this.t("TELL_QUESTION_MESSAGE", questionIndexForSpeech.toString(), spokenQuestion);
-
-        for (var i = 0; i < ANSWER_COUNT; i++) {
-            repromptText += (i+1).toString() + ". " + roundAnswers[i] + ". "
-        }
-
-        speechOutput += userGaveUp ? "" : this.t("ANSWER_IS_MESSAGE");
-        speechOutput += speechOutputAnalysis + this.t("SCORE_IS_MESSAGE", currentScore.toString()) + repromptText;
-
-        Object.assign(this.attributes, {
-            "speechOutput": repromptText,
-            "repromptText": repromptText,
-            "currentQuestionIndex": currentQuestionIndex,
-            "correctAnswerIndex": correctAnswerIndex + 1,
-            "questions": gameQuestions,
-            "score": currentScore,
-            "correctAnswerText": translatedQuestions[gameQuestions[currentQuestionIndex]][Object.keys(translatedQuestions[gameQuestions[currentQuestionIndex]])[0]][0]
-        });
-
-        this.emit(":askWithCard", speechOutput, repromptText, this.t("GAME_NAME"), repromptText);
-    }
-} */
 
 function populateWorkoutExercises(translatedExercises) {
     var workoutExercises = [];
