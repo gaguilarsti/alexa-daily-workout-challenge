@@ -2,9 +2,9 @@
 var APP_ID = "amzn1.ask.skill.3b461673-ee55-417c-a60c-57dbb405d485";
 
 //Google Analytics
-var ua = require('universal-analytics');
+var ua = require("universal-analytics");
 
-var SESSION_LENGTH = 10;  // The number of questions per trivia game.
+var SESSION_LENGTH = 10;  // The number of exercises per workout.
 var SKILL_STATES = {
     WORKOUT: "_WORKOUT", // Reading exercises.
     START: "_STARTMODE", // Entry point, start the workout.
@@ -21,8 +21,8 @@ var languageString = {
             "EXERCISES" : exercises["EXERCISES_EN_US"],
             "WARMUP" : warmup["WARMUPS_EN_US"],
             "COOLDOWN" : cooldown["COOLDOWNS_EN_US"],
-            "SKILL_NAME" : "Race car fit",
-            "HELP_MESSAGE": "I will go through a series of exercises that you will either do for thirty seconds or do a certain number of repititions. For example, I will say do squats for thirty seconds or do fifteen pushups.  To start a new workout at any time, say, start workout. ",
+            "SKILL_NAME" : "Racer fit",
+            "HELP_MESSAGE": "I will go through a series of exercises that you will either do for thirty seconds. For example, I will say do squats for thirty seconds or do fifteen pushups.  To start a new workout at any time, say, start workout. ",
             "REPEAT_EXERCISE_MESSAGE": "To repeat the last exercise, say, repeat. ",
             "ASK_MESSAGE_START": "Would you like to start working out?",
             "HELP_MESSAGE_REPROMPT": "To advance through the workout, simply do each exercise and try to keep up.",
@@ -110,11 +110,13 @@ var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
             }
         }
         
-        var coreExerciseSpeechOutput = coreExerciseText.join(". ") + this.t("WORKOUT_COMPLETE_MESSAGE");
+        var coreExerciseSpeechOutput = coreExerciseText.join(". ");
         
         var repromptText = this.t("TELL_EXERCISE_MESSAGE", "1", coreExercises[0]);
+        
+        var exitOutput = this.t("WORKOUT_COMPLETE_MESSAGE");
 
-        speechOutput += " " + coreExerciseSpeechOutput;
+        speechOutput += " " + coreExerciseSpeechOutput + exitOutput;
 
         Object.assign(this.attributes, {
             "coreExerciseText": coreExerciseText,
@@ -123,9 +125,10 @@ var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
             "exercises": coreExercises
         });
 
-        // Set the current state to workout mode. The skill will now use handlers defined in workoutStateHandlers
+        //Set the current state to workout mode. The skill will now use handlers defined in workoutStateHandlers
+        this.emit(":tell", speechOutput);
         //this.handler.state = SKILL_STATES.WORKOUT;
-        //this.emit(":askWithCard", speechOutput, this.t("SKILL_NAME"));
+        
     }
 });
 
