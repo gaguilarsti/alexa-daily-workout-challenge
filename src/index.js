@@ -4,7 +4,7 @@ var APP_ID = "amzn1.ask.skill.3b461673-ee55-417c-a60c-57dbb405d485";
 //Google Analytics
 var ua = require('universal-analytics');
 
-var SESSION_LENGTH = 5;  // The number of questions per trivia game.
+var SESSION_LENGTH = 10;  // The number of questions per trivia game.
 var SKILL_STATES = {
     WORKOUT: "_WORKOUT", // Reading exercises.
     START: "_STARTMODE", // Entry point, start the workout.
@@ -21,7 +21,7 @@ var languageString = {
             "EXERCISES" : exercises["EXERCISES_EN_US"],
             "WARMUP" : warmup["WARMUPS_EN_US"],
             "COOLDOWN" : cooldown["COOLDOWNS_EN_US"],
-            "SKILL_NAME" : "Daily Workout Challenge", 
+            "SKILL_NAME" : "Race car fit",
             "HELP_MESSAGE": "I will go through a series of exercises that you will either do for thirty seconds or do a certain number of repititions. For example, I will say do squats for thirty seconds or do fifteen pushups.  To start a new workout at any time, say, start workout. ",
             "REPEAT_EXERCISE_MESSAGE": "To repeat the last exercise, say, repeat. ",
             "ASK_MESSAGE_START": "Would you like to start working out?",
@@ -33,17 +33,16 @@ var languageString = {
             "START_UNHANDLED": "Say start to start a new workout.",
             "WORKOUT_UNHANDLED": "Sorry, I didn'nt quite get that.",
             "NEW_WORKOUT_MESSAGE": "Welcome to %s. ",
-            "WELCOME_MESSAGE": "I will go through %s core exercises that you will either do for thirty seconds or do a certain number of repititions within thrity seconds. For example, I will say, do squats for thirty seconds or do fifteen pushups. Your job is to keep up. Let's begin.",
+            "WELCOME_MESSAGE": "You are here because you wanna go fast or at least not be a weight penalty for your car that looks fast!  I will go through %s exercises that you will either do for thirty seconds or do a certain number of repititions within thrity seconds. For example, I will say, do squats for thirty seconds or drop and give me fifteen pushups. And not any of those new-fangle, on your knees pushups.  Real pushups! Your job is to try to keep up like that crap you always try to pull in qualifying, trying to get a good draft off of me on the back straight.  Never again!  Remember, if you're not first, you're last. Let's begin.",
             "TELL_EXERCISE_MESSAGE": "Exercise %s. %s ",
             "SKIP_WARMUP_MESSAGE": "Got it, let's get going.",
             "SKIP_COOLDOWN_MESSAGE": "Great work today.  Stretching is important, try to not skip it next time.",
-            "WORKOUT_COMPLETE_MESSAGE": "Your workout is complete! Great work today. See you tomorrow.",
+            "WORKOUT_COMPLETE_MESSAGE": "And there is the checkered flag and you finished! Unlike your thirty percent DNF rate last year.  You couldn't have done it without the support of your sponsors, Lee's Home Videos, you're one stop shop for movie rentals.  This whole internet and digital downloads of movies thing, is a fad and you'll want to have your rental punch card when it all comes crashing down.  Ten rentals and you get two free velvet rope candy sticks.  Please be kind, rewind.  And Frank's mobile plumbing and exterminator services.  Serving the middle, southwest, King County area, Wednesday through Friday, eleven AM through one-fifteen PM, off and on since twenty-nineteen. See you tomorrow.",
             "GO_MESSAGE": "Go!",
-            "MID_POINT_MESSAGE": "Half way there",
+            "MID_POINT_MESSAGE": "The half-way board is out at start finish.",
             "FIFTEEN_SECOND_TIMER_SSML": "<break time=\"10s\" /><break time=\"5s\" />",
             "TEN_SECOND_TIMER_SSML": "<break time=\"10s\" />",
             "FIVE_SEC_COUNTDOWN_SSML": "<p>Five</p><p>Four</p><p>Three</p><p>Two</p><p>One</p>",
-            "EXERCISE_COMPLETE_MESSAGE": "Good work!",
             "WARM_UP_START_MESSAGE": "Let's start with a quick warm up to loosen up your body. At any time you can skip the warmup by saying. Skip Warmup",
             "CORE_EXERCISE_START_MESSAGE": "Now that we're loosened up, let's start the main exercises. At any point, if you need a break, just say, I need a break, or, pause. If you finish an exercise early, you can also say, done, or, next exercise.",
             "COOL_DOWN_START_MESSAGE": "Great job today.  Let's do some stretching to avoid injury and be strong",
@@ -54,9 +53,8 @@ var languageString = {
 };
 
 var Alexa = require("alexa-sdk");
-var APP_ID = "amzn1.ask.skill.3b461673-ee55-417c-a60c-57dbb405d485";  
-
-exports.handler = function(event, context, callback) {
+var APP_ID = "amzn1.ask.skill.3b461673-ee55-417c-a60c-57dbb405d485";
+exports.handler = function (event, context, callback) {
     var alexa = Alexa.handler(event, context);
     alexa.appId = APP_ID;
     // To enable string internationalization (i18n) features, set a resources object.
@@ -70,11 +68,11 @@ var newSessionHandlers = {
         this.handler.state = SKILL_STATES.START;
         this.emitWithState("StartWorkout", true);
     },
-    "AMAZON.StartOverIntent": function() {
+    "AMAZON.StartOverIntent": function () {
         this.handler.state = SKILL_STATES.START;
         this.emitWithState("StartWorkout", true);
     },
-    "AMAZON.HelpIntent": function() {
+    "AMAZON.HelpIntent": function () {
         this.handler.state = SKILL_STATES.HELP;
         this.emitWithState("helpTheUser", true);
     },
@@ -126,8 +124,8 @@ var startStateHandlers = Alexa.CreateStateHandler(SKILL_STATES.START, {
         });
 
         // Set the current state to workout mode. The skill will now use handlers defined in workoutStateHandlers
-        this.handler.state = SKILL_STATES.WORKOUT;
-        this.emit(":askWithCard", speechOutput, this.t("SKILL_NAME"));
+        //this.handler.state = SKILL_STATES.WORKOUT;
+        //this.emit(":askWithCard", speechOutput, this.t("SKILL_NAME"));
     }
 });
 
